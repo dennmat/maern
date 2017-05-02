@@ -1,6 +1,10 @@
+import os
 import json
+import time
 import struct
 import socket
+
+import subprocess
 
 import pyglet
 
@@ -118,8 +122,15 @@ class Client(Observer):
         self.mode = Modes.NormalSingle
 
         self.cl_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.cl_socket.connect((host, port))
-        self.cl_socket.setblocking(0)
+
+        try:
+            self.cl_socket.connect((host, port))
+            self.cl_socket.setblocking(0)
+        except:
+            subprocess.Popen(["python", "server.py"])
+            time.sleep(1)
+            self.cl_socket.connect((host, port))
+            self.cl_socket.setblocking(0)
 
     def on_update(self):
         try:

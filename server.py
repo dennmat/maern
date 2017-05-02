@@ -8,13 +8,10 @@ import subprocess
 
 import socket
 
-def randstring(len):
-    r = []
+from .util import randstring, FUNCS_TO_INJECT
 
-    for i in range(len):
-        r.append(random.choice('abcdefghijklmnopqrstuvwxyz1234567890'))
-    
-    return ''.join(r)
+from . import commands
+from .commands.base import MaernCommands
 
 def send_msg(sock, msg):
     # Prefix each message with a 4-byte length (network byte order)
@@ -170,6 +167,9 @@ def start_server():
     imports_c = code.compile_command('import os')
     ii.runcode(imports_c)
 
+    for fname, fnc in FUNCS_TO_INJECT.items():
+        ii.locals[fname] = fnc
+
     while True:
         data = recv_msg(conn)
 
@@ -185,32 +185,33 @@ def start_server():
             if command.startswith('cd'):
                 command = '<%s>' % command.strip('\r\n')
             else:
-                command = 'print("<%s>")' % command.strip('\r\n')
+                command = 'print("""<%s>""")' % command.strip('\r\n')
 
         results = parse_command(command)
 
-        cmd_map = {
-            'ls': ls,
+        """cmd_map = {
+            'ls': ls.execute,
             'dir': ls,
             'cd': cd
-        }
+        }"""
 
         cmd_results = []
         for result in results:
             if result['mode'] == 'cmd':
-                cr = subprocess.run(result['command'].split(' '), shell=True, stdout=subprocess.PIPE) #obv needs work LOL
+                if result['command'].split(' ')[0] in MaernCommands:
+                    fn = MaernCommands[result['command'].split(' ')[0]].execute
+                    pre, post = fn(*[r.lstrip('-') for r in result['command'].split(' ')], as_string=result['in_string'])
 
-                if not result['in_string']:
-                    #if result['command'].startswith('dir') or result['command'].startswith('ls'):
-                    if result['command'].split(' ')[0] in cmd_map:
-                        fn = cmd_map[result['command'].split(' ')[0]]
-                        pre, post = fn(result['command'].split(' '))
+                    _cobj = code.compile_command(pre)
+                    ii.runcode(_cobj)
 
-                        _cobj = code.compile_command(pre)
-                        ii.runcode(_cobj)
+                    if result['in_string']:
+                        post = ii.locals[post]
 
-                        cmd_results.append(post.replace('\\\\n', '\\\\\\\\n').replace('\\\\r', '\\\\\\\\r'))
+                    #cmd_results.append(post.replace('\\\\n', '\\\\\\\\n').replace('\\\\r', '\\\\\\\\r'))
+                    cmd_results.append(post.replace('\\n', '\\\\n').replace('\\r', '\\\\r'))
                 else:
+                    cr = subprocess.run(result['command'].split(' '), shell=True, stdout=subprocess.PIPE) #obv needs work LOL
                     cmd_results.append(cr.stdout.decode('utf-8').replace('\n', '\\\\\\\\n').replace('\r', '\\\\\\\\r'))
             elif result['mode'] == 'python':
                 pcm = result['command']
