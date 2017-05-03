@@ -43,14 +43,49 @@ class Modes(object):
     NormalMulti = 1
     CommandMode = 2
 
+class PathEnv(list):
+    def append(self, path_str):
+        pass
+    
+    def __add__(self, rhs):
+        pass
 
 class Environment(object):
-    pass
+    def __init___(self):
+        self.env = os.env.copy()
 
+    def set_path_env(self, value):
+        pass
+    
+    def get_path_env(self):
+        return self.env['path']
+
+    def __setitem__(self, item, value):
+        lower_item = item.lower()
+
+        if hasattr(self, 'set_{0}_env'.format(lower_item)):
+            getattr(self, 'set_{0}_env'.format(lower_item))(value)
+        else:
+            self.env[item] = value
+    
+    def __getitem__(self, item):
+        lower_item = item.lower()
+
+        if hasattr(self, 'get_{0}_env'.format(lower_item)):
+            return getattr(self, 'get_{0}_env'.format(lower_item))()
+        else:
+            return self.env[item]
 
 class Process(object):
-    pass
+    def __init__(self):
+        self.pid = None
+        self.status = None
+        self.output = None
+        self.input = None
+        self.error = None
 
+    def kill(self):
+        pass
 
 class Buffer(object):
     def __init__(self):
@@ -141,16 +176,6 @@ def parse_command(command):
         return ret
     else:
         return [{'mode': 'python', 'command': command}]
-
-def ls(command):
-    r = randstring(10)
-    return '_ls_%s = os.scandir(os.getcwd())' % r, '_ls_%s' % r
-
-def cd(command):
-    r = randstring(10)
-    os.chdir(command[1])
-    wd = os.getcwd()
-    return ls('')
 
 def start_server():
     host = '127.0.0.1'
