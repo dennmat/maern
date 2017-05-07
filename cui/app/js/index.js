@@ -1,3 +1,5 @@
+const ipc = require('electron').ipcRenderer;
+
 class CommandsView {
     get $el() {
         return $('.ma-commands-view');
@@ -13,7 +15,20 @@ class CommandEditor {
         return $('.ma-command-enter');
     }
 
+    get $input() {
+        return $('.ma-command-input');
+    }
+
     constructor() {
+        this.bind();
+    }
+
+    bind() {
+        this.$input.on('keyup', (e) => {
+            if (e.keyCode == 13) {
+                ipc.send('send-command', this.$input.val(), 0);
+            }
+        });
     }
 }
 
@@ -39,8 +54,6 @@ class WindowHandler {
     resize(e) {
     }
 };
-
-const ipc = require('electron').ipcRenderer;
 
 ipc.on('test-one', (e, a) => { console.log('tesafwefwet'); });
 
