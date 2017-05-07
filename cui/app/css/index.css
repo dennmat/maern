@@ -1,0 +1,169 @@
+@font-face {
+  font-family: 'Inconsolata';
+  src: url('../fonts/Inconsolata-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Fira Mono';
+  src: url('../fonts/FiraMono-Regular.ttf'); 
+}
+
+html, body {
+	height: 100%;
+    padding: 0;
+    margin: 0;
+
+    font-family: 'Inconsolata';
+}
+
+/*
+    Highlight: DB5461
+    Back1: 686963
+    BackLight: 8AA29E
+    BLUEBLACK: 3D5467
+    WHITE: F1EDEE
+*/
+
+.container-column {
+    height: 100%;
+    padding: 0;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.status-bar {
+    background: #DB5461;
+    flex: none;
+    height: 20px;
+    color: #F1EDEE;
+    font-size: 10px;
+    padding: 2px 15px;
+}
+
+.container-fluid {
+    flex: 1;
+    width: 100%;
+    padding: 0;
+}
+
+.content-row {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+}
+
+.col {
+    height: 100%;
+}
+
+.ma-session-bar {
+  background: #262C31;
+  width: 55px;
+  padding: 10px;
+  flex: none;
+}
+
+.ma-process-bar {
+  background: #262C31;
+  width: 250px;
+  /*min-width: 200px;
+  flex: initial;*/
+  flex: none;
+}
+
+.ma-commands-bar {
+  background: #11171D;
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  font-family: 'Fira Mono';
+}
+
+.ma-commands-view {
+    flex: 1;
+}
+
+.ma-command-enter {
+    height: 30px;
+    flex: none;
+}
+
+.ma-command-enter input {
+    border: none;
+    background: #0A0D10;
+    width: 100%;
+    display: block;
+    color: #F1EDEE;
+    font-family: 'Fira Mono';
+    font-size: 16px;
+    padding: 2px 5px;
+}
+
+.ma-command-enter input:focus {
+    outline: none;
+}
+
+.ma-process-box {
+    padding: 15px 2px;
+}
+
+.ma-process-box h3 {
+    text-transform: uppercase;
+    color: #DCD8D9;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/*
+span {
+  display: inline-block;
+  border: 1px solid #000;
+  width: 100px;
+  height: 100px;
+}
+
+.a {
+  background: #483945;
+}
+
+.a2 {
+  background: #785975;
+}
+
+.d {
+  background: #34B997;
+}
+
+.c {
+  background: #E98523;
+}
+
+.g1 {
+  background: #484446;
+}
+
+.g2 {
+  background: #686466;
+}
+
+.g3 {
+  background: #888486;
+}
+
+.g4 {
+  background: #A8A4A6;
+}
+
+.w {
+  background: #F7F7F7;
+}
+
+.b {
+  background: #111;
+}*/

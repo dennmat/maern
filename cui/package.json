@@ -1,0 +1,8 @@
+{
+    "name": "cui",
+    "version": "0.1.0",
+    "main": "main.js",
+    "scripts": {
+        "start": "C:\\Users\\dennmat\\Desktop\\maern\\node_modules\\.bin\\electron cui"
+    }
+}
