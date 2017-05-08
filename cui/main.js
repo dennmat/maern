@@ -79,10 +79,10 @@ class ServerConnector {
 
     write(data) {
         let buffer = Buffer.from(data, 'utf8');
-        let sizeBuffer = Buffer.alloc(1);
-        sizeBuffer.writeInt8(data.length, 0);
-        let outputBuffer = Buffer.concat([sizeBuffer, buffer], 1 + buffer.length);
-        console.log("Writting", outputBuffer);
+        let sizeBuffer = Buffer.alloc(4);
+        sizeBuffer.writeInt16BE(data.length, 0);
+        let outputBuffer = Buffer.concat([sizeBuffer, buffer], 4 + buffer.length);
+        console.log("Writting", sizeBuffer, outputBuffer);
         this.socket.write(outputBuffer);
     }
 };

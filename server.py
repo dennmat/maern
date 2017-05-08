@@ -25,7 +25,6 @@ def recv_msg(sock):
         return None
     msglen = struct.unpack('>I', raw_msglen)[0]
 
-    print("ML", msglen)
     # Read the message data
     return recvall(sock, msglen).decode()
 
@@ -199,11 +198,12 @@ def start_server():
 
     while True:
         data = recv_msg(conn)
+        print(data)
 
         if not data:
             break
         
-        #print("RECEIVED", data)
+        print("RECEIVED", data)
         data_obj = json.loads(data)
 
         command = data_obj['command']
