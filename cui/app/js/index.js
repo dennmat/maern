@@ -8,6 +8,29 @@ class CommandsView {
     constructor() {
 
     }
+
+    appendResult(error, result, extra) {
+        let data = JSON.parse(extra);
+
+        let $resultElement = $('<div>', {'class': 'ma-command-container'});
+
+        let $headerElement = $('<div>', {'class': 'ma-command-header'});
+        
+        let $preElement = $('<pre>', {'class': 'ma-command-result'});
+
+        $headerElement.text('[' + data['index'] + '] >> ' + data['command']);
+
+        $preElement.text(data["result"]);
+
+        this.$el.append($resultElement.append($headerElement, $preElement));
+
+        this.$el.animate({
+            scrollTop: this.$el.find('.ma-command-container:last').offset().top
+        }, 100);
+        this.$el.animate({
+            scrollTop: this.$el.find('.ma-command-container:last').offset().top
+        }, 100);
+    }
 }
 
 class CommandEditor {
@@ -36,6 +59,20 @@ class CommandsPane {
     constructor() {
         this.commandsView = new CommandsView();
         this.commandEditor = new CommandEditor();
+
+        this.bind();
+    }
+
+    bind() {
+        ipc.on('command-result', $.proxy(this.commandReturn, this));
+    }
+
+    resize() {
+        this.commandsView.$el.css('height', (window.innerHeight-60)+'px');
+    }
+
+    commandReturn(error, result, extra) {
+        this.commandsView.appendResult(error, result, extra);
     }
 };
 
@@ -52,10 +89,9 @@ class WindowHandler {
     }
 
     resize(e) {
+        this.commandsPane.resize();
     }
 };
-
-ipc.on('test-one', (e, a) => { console.log('tesafwefwet'); });
 
 $(function() {
     new WindowHandler();

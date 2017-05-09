@@ -15,6 +15,16 @@ html, body {
 
     font-family: 'Inconsolata';
     -webkit-font-smoothing: antialiased;
+
+    overflow: hidden;
+}
+
+/* For some reason need to fight some bullshit fucking with native pre's */
+pre.ma-command-result {
+    overflow: visible;
+    display: block;
+    color: #F1EDEE;
+    width: 100%;
 }
 
 /*
@@ -24,6 +34,17 @@ html, body {
     BLUEBLACK: 3D5467
     WHITE: F1EDEE
 */
+
+.ma-command-container {
+    width: 100%;
+}
+
+.ma-command-header {
+    background: #ef9e3d;
+    color: #F1EDEE;
+    width: 100%;
+    padding: 5px;
+}
 
 .container-column {
     height: 100%;
@@ -88,6 +109,8 @@ html, body {
 
 .ma-commands-view {
     flex: 1;
+    overflow-y: scroll;
+    padding: 5px;
 }
 
 .ma-command-enter {

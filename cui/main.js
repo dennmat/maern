@@ -23,12 +23,8 @@ function createWindow () {
 
   // Open the DevTools.
   win.webContents.openDevTools();
- setTimeout(() => {
-  win.webContents.send('test-one', 1);
- },500);
 
-
-  server = new ServerConnector();
+  server = new ServerConnector(win);
 
   ipcMain.on('send-command', (e, command, mode) => {
     server.write(JSON.stringify({
@@ -59,7 +55,7 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
-})
+});
 
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
@@ -67,23 +63,31 @@ app.on('activate', () => {
   if (win === null) {
     createWindow();
   }
-})
+});
+
+var zerorpc = require("zerorpc");
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 class ServerConnector {
-    constructor() {
-        this.socket = Socket();
-        this.socket.connect(5000);
+    constructor(win) {
+        this.client = new zerorpc.Client();
+        this.client.connect("tcp://127.0.0.1:5000");
+
+        this.win = win;
     }
 
     write(data) {
-        let buffer = Buffer.from(data, 'utf8');
-        let sizeBuffer = Buffer.alloc(4);
-        sizeBuffer.writeInt16BE(data.length, 0);
-        let outputBuffer = Buffer.concat([sizeBuffer, buffer], 4 + buffer.length);
-        console.log("Writting", sizeBuffer, outputBuffer);
-        this.socket.write(outputBuffer);
+        //let buffer = Buffer.from(data, 'utf8');
+        //let sizeBuffer = Buffer.alloc(4);
+        //sizeBuffer.writeInt32BE(data.length, 0);
+        //let outputBuffer = Buffer.concat([sizeBuffer, buffer], 4 + buffer.length);
+        //console.log("Writting", sizeBuffer, outputBuffer);
+        //this.socket.write(outputBuffer);
+        console.log("SENDING", data);
+        this.client.invoke("command", data, (error, res, more) => {
+            this.win.webContents.send('command-result', error, res, more);
+        });
     }
 };
 /*

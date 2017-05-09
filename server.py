@@ -178,16 +178,103 @@ def parse_command(command):
     else:
         return [{'mode': 'python', 'command': command}]
 
+
+import zerorpc
+class MaernServer(object):
+    def __init__(self):
+        self.ii = MyI()
+        imports_c = code.compile_command('import os')
+        self.ii.runcode(imports_c)
+
+        for fname, fnc in FUNCS_TO_INJECT.items():
+            self.ii.locals[fname] = fnc
+        
+        self.cmd_index = 0
+    
+    def command(self, data):
+        print("RECEIVED", data)
+        data_obj = json.loads(data)
+
+        command = data_obj['command']
+
+        if data_obj['mode'] == Modes.CommandMode:
+            if command.startswith('cd'):
+                command = '<%s>' % command.strip('\r\n')
+            else:
+                command = 'print("""<%s>""")' % command.strip('\r\n')
+
+        results = parse_command(command)
+
+        self.cmd_index += 1
+
+        cmd_results = []
+        for result in results:
+            if result['mode'] == 'cmd':
+                if result['command'].split(' ')[0] in MaernCommands:
+                    fn = MaernCommands[result['command'].split(' ')[0]].execute
+                    pre, post = fn(*[r.lstrip('-') for r in result['command'].split(' ')], as_string=result['in_string'])
+
+                    _cobj = code.compile_command(pre)
+                    self.ii.runcode(_cobj)
+
+                    if result['in_string']:
+                        post = self.ii.locals[post]
+
+                    #cmd_results.append(post.replace('\\\\n', '\\\\\\\\n').replace('\\\\r', '\\\\\\\\r'))
+                    cmd_results.append(post.replace('\\n', '\\\\n').replace('\\r', '\\\\r'))
+                else:
+                    cr = subprocess.run(result['command'].split(' '), shell=True, stdout=subprocess.PIPE) #obv needs work LOL
+                    cmd_results.append(cr.stdout.decode('utf-8').replace('\n', '\\\\\\\\n').replace('\r', '\\\\\\\\r'))
+            elif result['mode'] == 'python':
+                pcm = result['command']
+                rcm = pcm
+
+                for r in cmd_results:
+                    rcm = rem.sub(r, rcm, count=1)
+
+                try:
+                    cobj = code.compile_command(rcm.replace('\\\\r','\\r').replace('\\\\n', '\\n').replace(':\\', ':\\\\'))
+                except SyntaxError as e:
+                    prepped_response = {
+                        'command': data_obj['command'],
+                        'result': e.msg,
+                        'cwd': os.getcwd(),
+                        'index': self.cmd_index
+                    }
+                else:
+                    with capture() as out:
+                        self.ii.runcode(cobj)
+                        res = out
+
+                    print("OUT", res)
+
+                    prepped_response = {
+                        'command': data_obj['command'],
+                        'result': res[0] if res[0] is not None else ' ',
+                        'cwd': os.getcwd(),
+                        'index': self.cmd_index
+                    }
+
+                #send_msg(conn, json.dumps(prepped_response))
+                return json.dumps(prepped_response)
+
+host = '127.0.0.1'
+port = 5000
+s = zerorpc.Server(MaernServer())
+s.bind("tcp://%s:%s" % (host, port))
+s.run()
+
+"""
 def start_server():
     host = '127.0.0.1'
     port = 5000
 
-    srv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    srv_socket.bind((host, port))
+    #srv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #srv_socket.bind((host, port))
 
-    srv_socket.listen(1)
+    #srv_socket.listen(1)
 
-    conn, addr = srv_socket.accept()
+    #conn, addr = srv_socket.accept()
 
     ii = MyI()
     imports_c = code.compile_command('import os')
@@ -212,15 +299,15 @@ def start_server():
             if command.startswith('cd'):
                 command = '<%s>' % command.strip('\r\n')
             else:
-                command = 'print("""<%s>""")' % command.strip('\r\n')
+                command = 'print("<%s>")' % command.strip('\r\n')
 
         results = parse_command(command)
 
-        """cmd_map = {
+        cmd_map = {
             'ls': ls.execute,
             'dir': ls,
             'cd': cd
-        }"""
+        }
 
         cmd_results = []
         for result in results:
@@ -270,7 +357,7 @@ def start_server():
                 send_msg(conn, json.dumps(prepped_response))
 
     conn.close()
+"""
 
-
-if __name__ == '__main__':
-    start_server()
+#if __name__ == '__main__':
+    #start_server()

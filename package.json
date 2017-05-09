@@ -1,0 +1,32 @@
+{
+  "name": "maern",
+  "version": "0.0.1",
+  "description": "Aura",
+  "main": "index.js",
+  "dependencies": {
+    "babel-runtime": "^6.23.0",
+    "bluebird": "^3.5.0",
+    "electron": "^1.6.6",
+    "electron-rebuild": "^1.5.8",
+    "gyp": "^0.5.0",
+    "octicons": "^5.0.1",
+    "zerorpc": "^0.9.7",
+    "zmq": "^2.15.3"
+  },
+  "devDependencies": {
+    "zmq": "^2.15.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dennmat/maern.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dennmat/maern/issues"
+  },
+  "homepage": "https://github.com/dennmat/maern#readme"
+}
